@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
-    private int id;
+    private Integer id;
 
     @NotEmpty
     private String name;
@@ -18,11 +18,7 @@ public class Film {
     private LocalDate releaseDate;
     private Duration duration;
 
-    public Film(int id, String name, String description, LocalDate releaseDate, Duration duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
+    public long getDuration() {
+        return duration.getSeconds();
     }
 }
