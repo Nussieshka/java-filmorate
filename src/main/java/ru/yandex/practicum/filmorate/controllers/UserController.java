@@ -22,14 +22,14 @@ public class UserController {
         this.users = new ArrayList<>();
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         users.add(user);
         log.info("New user added successfully");
         return user;
     }
 
-    @PutMapping("/edit")
+    @PutMapping
     public User editUser(@Valid @RequestBody User user) {
         users.stream().filter(x -> x.getId() == user.getId()).findFirst().ifPresent(users::remove);
         users.add(user);

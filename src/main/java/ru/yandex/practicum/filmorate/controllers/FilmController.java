@@ -24,7 +24,7 @@ public class FilmController {
         this.films = new ArrayList<>();
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         validateFilmDate(film);
         films.add(film);
@@ -32,7 +32,7 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping("/edit")
+    @PutMapping
     public Film editFilm(@Valid @RequestBody Film film) {
         validateFilmDate(film);
         films.stream().filter(x -> x.getId() == film.getId()).findFirst().ifPresent(films::remove);
