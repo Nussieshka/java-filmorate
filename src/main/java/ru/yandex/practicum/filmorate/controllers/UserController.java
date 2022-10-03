@@ -28,8 +28,12 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        if (user.getId() != null) throw new RuntimeException("Cannot post user with id");
-        if (user.getName() == null) user.setName(user.getLogin());
+        if (user.getId() != null) {
+            throw new RuntimeException("Cannot post user with id");
+        }
+        if (user.getName() == null) {
+            user.setName(user.getLogin());
+        }
         user.setId(++maxId);
         users.put(user.getId(), user);
         log.info("New user added successfully");
@@ -40,7 +44,9 @@ public class UserController {
     public User editUser(@Valid @RequestBody User user) {
         Integer currentId = user.getId();
         User tempUser = users.get(currentId);
-        if (tempUser == null) throw new RuntimeException("There is no such user");
+        if (tempUser == null) {
+            throw new RuntimeException("There is no such user");
+        }
         users.put(currentId, user);
         log.info("User updated successfully");
         return user;
