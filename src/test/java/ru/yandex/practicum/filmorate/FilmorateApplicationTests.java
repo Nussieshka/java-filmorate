@@ -157,21 +157,15 @@ class FilmorateApplicationTests {
 	}
 
 	private User createUser(String email, String login, String name, LocalDate birthday) {
-		User user = new User();
-		user.setEmail(email);
-		user.setLogin(login);
-		user.setName(name);
-		user.setBirthday(birthday);
+		User user = new User(email, login, name, birthday);
+		String username = user.getName();
+		if (username == null || username.isEmpty())
+			user.setName(user.getLogin());
 		return user;
 	}
 
 	private Film createFilm(String name, String desc, LocalDate releaseDate, Duration duration) {
-		Film film = new Film();
-		film.setName(name);
-		film.setDescription(desc);
-		film.setReleaseDate(releaseDate);
-		film.setDuration(duration);
-		return film;
+		return new Film(name, desc, releaseDate, duration);
 	}
 
 }
