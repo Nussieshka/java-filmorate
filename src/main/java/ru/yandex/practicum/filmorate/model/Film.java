@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.*;
 import java.time.Duration;
@@ -10,7 +9,11 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter @Setter @EqualsAndHashCode
+@Getter
+@Setter
+@EqualsAndHashCode
+@Builder
+@Jacksonized
 public class Film {
     private Long id;
 
@@ -22,22 +25,11 @@ public class Film {
     private LocalDate releaseDate;
     private Duration duration;
 
-    private Set<Long> likedBy;
+    @Builder.Default
+    private final Set<Long> likedBy = new HashSet<>();
 
     public long getDuration() {
         return duration.getSeconds();
-    }
-
-    public Film() {
-        this.likedBy = new HashSet<>();
-    }
-
-    public Film(String name, String description, LocalDate releaseDate, Duration duration) {
-        this();
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
     }
 
     public int getLikesCount() {

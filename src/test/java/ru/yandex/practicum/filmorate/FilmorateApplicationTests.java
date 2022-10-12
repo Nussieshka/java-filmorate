@@ -157,7 +157,7 @@ class FilmorateApplicationTests {
 	}
 
 	private User createUser(String email, String login, String name, LocalDate birthday) {
-		User user = new User(email, login, name, birthday);
+		User user = User.builder().email(email).login(login).name(name).birthday(birthday).build();
 		String username = user.getName();
 		if (username == null || username.isEmpty())
 			user.setName(user.getLogin());
@@ -165,7 +165,6 @@ class FilmorateApplicationTests {
 	}
 
 	private Film createFilm(String name, String desc, LocalDate releaseDate, Duration duration) {
-		return new Film(name, desc, releaseDate, duration);
+		return Film.builder().name(name).description(desc).releaseDate(releaseDate).duration(duration).build();
 	}
-
 }

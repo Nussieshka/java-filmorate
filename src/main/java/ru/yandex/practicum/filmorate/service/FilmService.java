@@ -57,7 +57,8 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getMostPopularFilms(int count) {
+    public List<Film> getMostPopularFilms(String stringCount) {
+        int count = stringCount == null || stringCount.isEmpty() ? 10 : Integer.parseInt(stringCount);
         return getFilms()
                 .stream()
                 .sorted(Comparator.comparingInt(o -> -1 * o.getLikesCount()))
