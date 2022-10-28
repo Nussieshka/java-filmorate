@@ -1,12 +1,15 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbFilmStorage;
 import ru.yandex.practicum.filmorate.util.ObjectNotFoundException;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -14,54 +17,62 @@ public class FilmService {
 
     public final FilmStorage storage;
 
-    public FilmService(FilmStorage storage) {
+    public FilmService(@Qualifier("dbFilmStorage") FilmStorage storage) {
         this.storage = storage;
     }
 
-    public Film addFilm(Film film) {
+    public Optional<Film> addFilm(Film film) {
         return storage.addFilm(film);
     }
 
-    public Film editFilm(Film film) {
+    public Optional<Film> editFilm(Film film) {
         return storage.editFilm(film);
     }
 
-    public List<Film> getFilms() {
+    public List<Optional<Film>> getFilms() {
         return storage.getFilms();
     }
 
     public void addLike(long filmId, long userId) {
-        Film film = storage.getById(filmId);
-        if (film == null) {
+        Optional<Film> film = storage.getById(filmId);
+        if (film.isEmpty()) {
             throw new ObjectNotFoundException();
         }
-        film.like(userId);
+        film.get().like(userId);
+        if (storage instanceof DbFilmStorage) {
+            ((DbFilmStorage) storage).likeFilm(filmId, userId);
+        }
     }
 
     public void removeLike(long filmId, long userId) {
-        Film film = storage.getById(filmId);
-        if (film == null) {
+        Optional<Film> optionalFilm = storage.getById(filmId);
+        if (optionalFilm.isEmpty()) {
             throw new ObjectNotFoundException();
         }
+        Film film = optionalFilm.get();
         if (!film.getLikedBy().contains(userId)) {
             throw new ObjectNotFoundException();
         }
         film.dislike(userId);
+        if (storage instanceof DbFilmStorage) {
+            ((DbFilmStorage) storage).dislikeFilm(filmId, userId);
+        }
     }
 
-    public Film getFilmById(long id) {
-        Film film = storage.getById(id);
-        if (film == null) {
+    public Optional<Film> getFilmById(long id) {
+        Optional<Film> film = storage.getById(id);
+        if (film.isEmpty()) {
             throw new ObjectNotFoundException();
         }
         return film;
     }
 
-    public List<Film> getMostPopularFilms(String stringCount) {
+    public List<Optional<Film>> getMostPopularFilms(String stringCount) {
         int count = stringCount == null || stringCount.isEmpty() ? 10 : Integer.parseInt(stringCount);
         return getFilms()
                 .stream()
-                .sorted(Comparator.comparingInt(o -> -1 * o.getLikesCount()))
+                .filter(Optional::isPresent)
+                .sorted(Comparator.comparingInt(o -> -1 * o.get().getLikesCount()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
