@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.util.MPA;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,8 +59,7 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(3)
 	public void shouldGetValidListOfUsers() {
-		List<User> optionalList = userStorage.getUsers().stream().filter(Optional::isPresent)
-				.map(Optional::get).collect(Collectors.toList());
+		List<User> optionalList = userStorage.getUsers();
 		assertEquals(optionalList.size(), 2);
 
 		for (int i = 0; i < optionalList.size(); i++) {
@@ -128,8 +126,7 @@ class FilmorateApplicationTests {
 	@Test
 	@Order(7)
 	public void shouldGetValidListOfFilms() {
-		List<Film> optionalList = filmStorage.getFilms().stream().filter(Optional::isPresent)
-				.map(Optional::get).collect(Collectors.toList());
+		List<Film> optionalList = filmStorage.getFilms();
 		assertEquals(optionalList.size(), 2);
 
 		for (int i = 0; i < optionalList.size(); i++) {
@@ -173,8 +170,7 @@ class FilmorateApplicationTests {
 	@Order(9)
 	public void shouldGetValidListOfMpas() {
 		List<MPA> mpaList = Arrays.asList(MPA.values());
-		List<MPA> mpaGetList = mpaStorage.getAllMpa().stream().filter(Optional::isPresent)
-				.map(Optional::get).collect(Collectors.toList());
+		List<MPA> mpaGetList = mpaStorage.getAllMpa();
 		assertEquals(mpaList, mpaGetList);
 	}
 
@@ -191,8 +187,7 @@ class FilmorateApplicationTests {
 	@Order(11)
 	public void shouldGetValidListOfGenres() {
 		List<Genre> genresList = Arrays.asList(Genre.values());
-		List<Genre> genresGetList = dbGenreStorage.getAllGenres().stream().filter(Optional::isPresent)
-				.map(Optional::get).collect(Collectors.toList());
+		List<Genre> genresGetList = dbGenreStorage.getAllGenres();
 		assertEquals(genresList, genresGetList);
 	}
 
