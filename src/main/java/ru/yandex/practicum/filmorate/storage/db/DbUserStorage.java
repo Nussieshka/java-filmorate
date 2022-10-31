@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.util.ObjectNotFoundException;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component("dbUserStorage")
 public class DbUserStorage implements UserStorage {
@@ -73,9 +72,8 @@ public class DbUserStorage implements UserStorage {
     }
 
     @Override
-    public List<Optional<User>> getUsers() {
-        return this.jdbcTemplate.query("SELECT * FROM users", this::makeUser)
-                .stream().map(Optional::ofNullable).collect(Collectors.toList());
+    public List<User> getUsers() {
+        return this.jdbcTemplate.query("SELECT * FROM users", this::makeUser);
     }
 
     private User makeUser(ResultSet resultSet, int i) throws SQLException {

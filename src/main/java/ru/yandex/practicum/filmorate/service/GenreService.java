@@ -16,13 +16,15 @@ public class GenreService {
         this.storage = storage;
     }
 
-    public List<Optional<Genre>> getGenres() {
+    public List<Genre> getGenres() {
         return storage.getAllGenres();
     }
 
-    public Optional<Genre> getGenreById(String id) {
+    public Genre getGenreById(String id) {
         Optional<Genre> genre = storage.getGenreById(Integer.parseInt(id));
-        if (genre.isEmpty()) throw new ObjectNotFoundException();
-        return genre;
+        if (genre.isEmpty()) {
+            throw new ObjectNotFoundException();
+        }
+        return genre.get();
     }
 }

@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -19,11 +18,10 @@ public class DbGenreStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Optional<Genre>> getAllGenres() {
+    public List<Genre> getAllGenres() {
         String sqlQuery = "SELECT * FROM genre";
 
-        return this.jdbcTemplate.query(sqlQuery, this::makeGenre).stream()
-                .map(Optional::ofNullable).collect(Collectors.toList());
+        return this.jdbcTemplate.query(sqlQuery, this::makeGenre);
     }
 
     @Override

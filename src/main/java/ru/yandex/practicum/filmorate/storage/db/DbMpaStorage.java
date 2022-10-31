@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -19,11 +18,10 @@ public class DbMpaStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Optional<MPA>> getAllMpa() {
+    public List<MPA> getAllMpa() {
         String sqlQuery = "SELECT * FROM rating";
 
-        return this.jdbcTemplate.query(sqlQuery, this::makeMpa).stream()
-                .map(Optional::ofNullable).collect(Collectors.toList());
+        return this.jdbcTemplate.query(sqlQuery, this::makeMpa);
     }
 
     @Override

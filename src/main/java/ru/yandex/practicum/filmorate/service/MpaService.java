@@ -16,13 +16,15 @@ public class MpaService {
         this.storage = storage;
     }
 
-    public List<Optional<MPA>> getMpa() {
+    public List<MPA> getMpa() {
         return storage.getAllMpa();
     }
 
-    public Optional<MPA> getMpaById(String id) {
+    public MPA getMpaById(String id) {
         Optional<MPA> mpa = storage.getMpaById(Integer.parseInt(id));
-        if (mpa.isEmpty()) throw new ObjectNotFoundException();
-        return mpa;
+        if (mpa.isEmpty()) {
+            throw new ObjectNotFoundException();
+        }
+        return mpa.get();
     }
 }

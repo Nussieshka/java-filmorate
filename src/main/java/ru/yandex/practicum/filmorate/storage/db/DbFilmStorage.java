@@ -85,9 +85,8 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Optional<Film>> getFilms() {
-        return this.jdbcTemplate.query("SELECT * FROM movies", this::makeFilm).stream().map(Optional::ofNullable)
-                .collect(Collectors.toList());
+    public List<Film> getFilms() {
+        return this.jdbcTemplate.query("SELECT * FROM movies", this::makeFilm);
     }
 
     private Film makeFilm(ResultSet resultSet, int i) throws SQLException {

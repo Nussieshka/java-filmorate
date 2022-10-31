@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.ObjectNotFoundException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component("inMemoryUserStorage")
 @Slf4j
@@ -54,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<Optional<User>> getUsers() {
-        return users.values().stream().map(Optional::of).collect(Collectors.toList());
+    public List<User> getUsers() {
+        return new ArrayList<>(users.values());
     }
 }

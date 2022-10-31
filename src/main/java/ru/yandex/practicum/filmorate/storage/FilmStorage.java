@@ -9,5 +9,5 @@ public interface FilmStorage {
     Optional<Film> addFilm(Film film);
     Optional<Film> editFilm(Film film);
     Optional<Film> getById(long id);
-    List<Optional<Film>> getFilms();
+    List<Film> getFilms();
 }

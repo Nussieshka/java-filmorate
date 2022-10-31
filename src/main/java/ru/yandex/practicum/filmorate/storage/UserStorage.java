@@ -9,5 +9,5 @@ public interface UserStorage {
     Optional<User> addUser(User user);
     Optional<User> editUser(User user);
     Optional<User> getById(long id);
-    List<Optional<User>> getUsers();
+    List<User> getUsers();
 }

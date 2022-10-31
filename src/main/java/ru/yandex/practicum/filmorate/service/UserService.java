@@ -23,24 +23,32 @@ public class UserService {
         this.storage = storage;
     }
 
-    public Optional<User> addUser(User user) {
-        return storage.addUser(user);
+    public User addUser(User user) {
+        Optional<User> optionalUser = storage.addUser(user);
+        if (optionalUser.isEmpty()) {
+            throw new ObjectNotFoundException();
+        }
+        return optionalUser.get();
     }
 
-    public Optional<User> editUser(User user) {
-        return storage.editUser(user);
+    public User editUser(User user) {
+        Optional<User> optionalUser = storage.editUser(user);
+        if (optionalUser.isEmpty()) {
+            throw new ObjectNotFoundException();
+        }
+        return optionalUser.get();
     }
 
-    public List<Optional<User>> getUsers() {
+    public List<User> getUsers() {
         return storage.getUsers();
     }
 
-    public Optional<User> getUserById(long id) {
+    public User getUserById(long id) {
         Optional<User> user = storage.getById(id);
         if (user.isEmpty()) {
             throw new ObjectNotFoundException();
         }
-        return user;
+        return user.get();
     }
 
     public void addToFriendList(long id1, long id2) {
@@ -98,14 +106,10 @@ public class UserService {
             throw new IllegalArgumentException();
         }
 
-        Optional<User> user1 = getUserById(id1);
-        Optional<User> user2 = getUserById(id2);
+        User user1 = getUserById(id1);
+        User user2 = getUserById(id2);
 
-        if (user1.isEmpty() || user2.isEmpty()) {
-            throw new ObjectNotFoundException();
-        }
-
-        return new User[] { user1.get(), user2.get() };
+        return new User[] { user1, user2 };
     }
 
     public Set<User> getFriends(long id) {

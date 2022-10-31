@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.util.ObjectNotFoundException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.util.Validation.validateFilmDate;
 
@@ -53,7 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Optional<Film>> getFilms()  {
-        return films.values().stream().map(Optional::of).collect(Collectors.toList());
+    public List<Film> getFilms()  {
+        return new ArrayList<>(films.values());
     }
 }

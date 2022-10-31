@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +10,6 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 import ru.yandex.practicum.filmorate.util.MPA;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/mpa")
@@ -18,12 +18,12 @@ public class MpaController {
     private final MpaService mpaService;
 
     @GetMapping
-    public List<Optional<MPA>> getGenres() {
+    public List<MPA> getGenres() {
         return mpaService.getMpa();
     }
 
     @GetMapping("/{id}")
-    public Optional<MPA> getMpaById(@PathVariable String id) {
-        return mpaService.getMpaById(id);
+    public ResponseEntity<MPA> getMpaById(@PathVariable String id) {
+        return ResponseEntity.ok(mpaService.getMpaById(id));
     }
 }

@@ -21,15 +21,21 @@ public class FilmService {
         this.storage = storage;
     }
 
-    public Optional<Film> addFilm(Film film) {
-        return storage.addFilm(film);
+    public Film addFilm(Film film) {
+        Optional<Film> optionalFilm = storage.addFilm(film);
+        if (optionalFilm.isEmpty())
+            throw new ObjectNotFoundException();
+        return optionalFilm.get();
     }
 
-    public Optional<Film> editFilm(Film film) {
-        return storage.editFilm(film);
+    public Film editFilm(Film film) {
+        Optional<Film> optionalFilm = storage.editFilm(film);
+        if (optionalFilm.isEmpty())
+            throw new ObjectNotFoundException();
+        return optionalFilm.get();
     }
 
-    public List<Optional<Film>> getFilms() {
+    public List<Film> getFilms() {
         return storage.getFilms();
     }
 
@@ -59,20 +65,19 @@ public class FilmService {
         }
     }
 
-    public Optional<Film> getFilmById(long id) {
+    public Film getFilmById(long id) {
         Optional<Film> film = storage.getById(id);
         if (film.isEmpty()) {
             throw new ObjectNotFoundException();
         }
-        return film;
+        return film.get();
     }
 
-    public List<Optional<Film>> getMostPopularFilms(String stringCount) {
+    public List<Film> getMostPopularFilms(String stringCount) {
         int count = stringCount == null || stringCount.isEmpty() ? 10 : Integer.parseInt(stringCount);
         return getFilms()
                 .stream()
-                .filter(Optional::isPresent)
-                .sorted(Comparator.comparingInt(o -> -1 * o.get().getLikesCount()))
+                .sorted(Comparator.comparingInt(o -> -1 * o.getLikesCount()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
