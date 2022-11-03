@@ -1,16 +1,14 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.memory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.ObjectNotFoundException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@Component
+@Component("inMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
@@ -23,7 +21,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addUser(User user) {
+    public Optional<User> addUser(User user) {
         if (user.getId() != null) {
             throw new RuntimeException("Cannot post user with id");
         }
@@ -34,24 +32,24 @@ public class InMemoryUserStorage implements UserStorage {
         user.setId(++maxId);
         users.put(user.getId(), user);
         log.info("New user added successfully");
-        return user;
+        return Optional.of(user);
     }
 
     @Override
-    public User editUser(User user) {
+    public Optional<User> editUser(User user) {
         Long currentId = user.getId();
-        User tempUser = getById(currentId);
-        if (tempUser == null) {
+        Optional<Optional<User>> tempUser = Optional.ofNullable(getById(currentId));
+        if (tempUser.isEmpty()) {
             throw new ObjectNotFoundException();
         }
         users.put(currentId, user);
         log.info("User updated successfully");
-        return user;
+        return Optional.of(user);
     }
 
     @Override
-    public User getById(long id) {
-        return users.get(id);
+    public Optional<User> getById(long id) {
+        return Optional.of(users.get(id));
     }
 
     @Override

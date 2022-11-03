@@ -1,170 +1,202 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.db.DbFilmStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbGenreStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbMpaStorage;
+import ru.yandex.practicum.filmorate.storage.db.DbUserStorage;
+import ru.yandex.practicum.filmorate.util.Genre;
+import ru.yandex.practicum.filmorate.util.MPA;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FilmorateApplicationTests {
+	private final DbUserStorage userStorage;
+	private final DbFilmStorage filmStorage;
+	private final DbMpaStorage mpaStorage;
+	private final DbGenreStorage dbGenreStorage;
 
-	@LocalServerPort
-	private int port;
-	private static String url;
-
-	@Autowired
-	private TestRestTemplate restTemplate;
-
-	@BeforeEach
-	void setUp() {
-		url = "http://localhost:" + port + "/";
+	@Test
+	@Order(1)
+	public void shouldAddUserToDB() {
+		User user = createTestUser();
+		Optional<User> testOptionalUser = userStorage.addUser(user);
+		assertTrue(testOptionalUser.isPresent());
+		User testUser = testOptionalUser.get();
+		assertEquals(1, testUser.getId());
+		assertEquals(user.getName(), testUser.getName());
+		assertEquals(user.getLogin(), testUser.getLogin());
+		assertEquals(user.getEmail(), testUser.getEmail());
+		assertEquals(user.getBirthday(), testUser.getBirthday());
 	}
 
 	@Test
-	void shouldPassUserValidation() {
-		User user = createUser("email@gmail.com", "login", "name", LocalDate.now().minusDays(15));
-		User restTemplateUser = restTemplate.postForObject(url + "/users", user, User.class);
-		user.setId(restTemplateUser.getId());
-		assertEquals(user, restTemplateUser);
+	@Order(2)
+	public void shouldGetValidUserFromDB() {
+		User user = createTestUser();
+		Optional<User> testOptionalUserAdd = userStorage.addUser(user);
+		assertTrue(testOptionalUserAdd.isPresent());
+		User testUserAdd = testOptionalUserAdd.get();
+		Optional<User> testOptionalUserGet = userStorage.getById(testUserAdd.getId());
+		assertTrue(testOptionalUserGet.isPresent());
+		assertEquals(testUserAdd, testOptionalUserGet.get());
 	}
 
 	@Test
-	void shouldPassFilmValidation() {
-		Film film = createFilm("film", "desc", LocalDate.of(1912, 12, 28),
-				Duration.ofHours(2));
-		Film restTemplateFilm = restTemplate.postForObject(url + "/films", film, Film.class);
-		film.setId(restTemplateFilm.getId());
-		assertEquals(film, restTemplateFilm);
+	@Order(3)
+	public void shouldGetValidListOfUsers() {
+		List<User> optionalList = userStorage.getUsers();
+		assertEquals(optionalList.size(), 2);
+
+		for (int i = 0; i < optionalList.size(); i++) {
+			assertEquals(i + 1, optionalList.get(i).getId());
+		}
 	}
 
 	@Test
-	void shouldNotPassUserValidationWithEmptyLogin() {
-		User user = createUser("email@gmail.com", "", "name", LocalDate.now().minusDays(15));
-		assertNull(restTemplate.postForObject(url + "/users", user, User.class));
+	@Order(4)
+	public void shouldCorrectlyEditUser() {
+		User newUser = User.builder()
+				.id(1L)
+				.login("bbbbb")
+				.name("aaaaa")
+				.email("mmm@gmail.com")
+				.birthday(LocalDate.of(1981, 3, 3))
+				.build();
+		Optional<User> testUserEdit = userStorage.editUser(newUser);
+		assertTrue(testUserEdit.isPresent());
+		assertEquals(newUser, testUserEdit.get());
+
+		Optional<User> testUserGet = userStorage.getById(1);
+		assertTrue(testUserGet.isPresent());
+		assertEquals(testUserGet.get(), newUser);
+	}
+
+	private User createTestUser() {
+		return User.builder()
+				.login("dolore")
+				.name("asdsad")
+				.email("bbb@gmail.com")
+				.birthday(LocalDate.of(1984, 1, 1))
+				.build();
 	}
 
 	@Test
-	void shouldNotPassUserValidationWithWrongEmail() {
-		User user = createUser("email", "login", "name", LocalDate.now().minusDays(15));
-		assertNull(restTemplate.postForObject(url + "/users", user, User.class));
+	@Order(5)
+	public void shouldAddFilmToDB() {
+		Film film = createTestFilm();
+		Optional<Film> testOptionalFilm = filmStorage.addFilm(film);
+		assertTrue(testOptionalFilm.isPresent());
+		Film testFilm = testOptionalFilm.get();
+		assertEquals(1, testFilm.getId());
+		assertEquals(film.getName(), testFilm.getName());
+		assertEquals(film.getReleaseDate(), testFilm.getReleaseDate());
+		assertEquals(film.getDescription(), testFilm.getDescription());
+		assertEquals(film.getDuration(), testFilm.getDuration());
+		assertEquals(film.getMpa(), testFilm.getMpa());
+		assertEquals(film.getGenres(), testFilm.getGenres());
 	}
 
 	@Test
-	void shouldNotPassUserValidationWithEmptyEmail() {
-		User user = createUser("", "login", "name", LocalDate.now().minusDays(15));
-		assertNull(restTemplate.postForObject(url + "/users", user, User.class));
+	@Order(6)
+	public void shouldGetValidFilmFromDB() {
+		Film film = createTestFilm();
+		Optional<Film> testOptionalFilm = filmStorage.addFilm(film);
+		assertTrue(testOptionalFilm.isPresent());
+		Film testFilmAdd = testOptionalFilm.get();
+		Optional<Film> testOptionalFilmGet = filmStorage.getById(testFilmAdd.getId());
+		assertTrue(testOptionalFilmGet.isPresent());
+		assertEquals(testFilmAdd, testOptionalFilmGet.get());
 	}
 
 	@Test
-	void shouldPassUserValidationWithEmptyName() {
-		User user = createUser("email@gmail.com", "login", "", LocalDate.now().minusDays(15));
-		User restTemplateUser = restTemplate.postForObject(url + "/users", user, User.class);
-		user.setId(restTemplateUser.getId());
-		assertEquals(user, restTemplateUser);
+	@Order(7)
+	public void shouldGetValidListOfFilms() {
+		List<Film> optionalList = filmStorage.getFilms();
+		assertEquals(optionalList.size(), 2);
+
+		for (int i = 0; i < optionalList.size(); i++) {
+			assertEquals(i + 1, optionalList.get(i).getId());
+		}
 	}
 
 	@Test
-	void shouldNotPassUserValidationWithBlankLogin() {
-		User user = createUser("email@gmail.com", " ", "name", LocalDate.now().minusDays(15));
-		assertNull(restTemplate.postForObject(url + "/users", user, User.class));
+	@Order(8)
+	public void shouldCorrectlyEditFilm() {
+		Film newFilm = Film.builder()
+				.id(1L)
+				.name("asd asdasdasd")
+				.releaseDate(LocalDate.of(1999, 1, 3))
+				.description("Lkj asdasd awdsff")
+				.duration(Duration.ofMinutes(111))
+				.mpa(MPA.valueToMpa(3))
+				.genres(EnumSet.of(Genre.valueToGenre(2), Genre.valueToGenre(4)))
+				.build();
+		Optional<Film> testFilmEdit = filmStorage.editFilm(newFilm);
+		assertTrue(testFilmEdit.isPresent());
+		assertEquals(newFilm, testFilmEdit.get());
+
+		Optional<Film> testFilmGet = filmStorage.getById(1);
+		assertTrue(testFilmGet.isPresent());
+		assertEquals(testFilmGet.get(), newFilm);
+	}
+
+	private Film createTestFilm() {
+		return Film.builder()
+				.name("labore nulla")
+				.releaseDate(LocalDate.of(1979, 4, 17))
+				.description("Duis in consequat esse")
+				.duration(Duration.ofMinutes(100))
+				.mpa(MPA.valueToMpa(1))
+				.genres(EnumSet.of(Genre.valueToGenre(1), Genre.valueToGenre(3)))
+				.build();
 	}
 
 	@Test
-	void shouldPassUserValidationWithCurrentDate() {
-		User user = createUser("email@gmail.com", "login", "name", LocalDate.now());
-		User restTemplateUser = restTemplate.postForObject(url + "/users", user, User.class);
-		user.setId(restTemplateUser.getId());
-		assertEquals(user, restTemplateUser);
+	@Order(9)
+	public void shouldGetValidListOfMpas() {
+		List<MPA> mpaList = Arrays.asList(MPA.values());
+		List<MPA> mpaGetList = mpaStorage.getAllMpa();
+		assertEquals(mpaList, mpaGetList);
 	}
 
 	@Test
-	void shouldNotPassUserValidationWithFutureDay() {
-		User user = createUser("email@gmail.com", "login", "name", LocalDate.now().plusDays(1));
-		assertNull(restTemplate.postForObject(url + "/users", user, User.class));
+	@Order(10)
+	public void shouldGetValidMpa() {
+		MPA[] mpas = MPA.values();
+		for (int i = 0; i < mpas.length; i++) {
+			assertEquals(mpas[i], mpaStorage.getMpaById(i + 1).orElse(null));
+		}
 	}
 
 	@Test
-	void shouldNotPassFilmValidationWithEmptyName() {
-		Film film = createFilm("", "desc", LocalDate.of(1912, 12, 28),
-				Duration.ofHours(2));
-		assertNull(restTemplate.postForObject(url + "/films", film, Film.class));
+	@Order(11)
+	public void shouldGetValidListOfGenres() {
+		List<Genre> genresList = Arrays.asList(Genre.values());
+		List<Genre> genresGetList = dbGenreStorage.getAllGenres();
+		assertEquals(genresList, genresGetList);
 	}
 
 	@Test
-	void shouldPassFilmValidationWith200DescLength() {
-		Film film = createFilm("name", "d".repeat(200), LocalDate.of(1912, 12, 28),
-				Duration.ofHours(2));
-		Film restTemplateFilm = restTemplate.postForObject(url + "/films", film, Film.class);
-		film.setId(restTemplateFilm.getId());
-		assertEquals(film, restTemplateFilm);
-	}
-
-	@Test
-	void shouldNotPassFilmValidationWith201DescLength() {
-		Film film = createFilm("name", "d".repeat(201), LocalDate.of(1912, 12, 28),
-				Duration.ofHours(2));
-		assertNull(restTemplate.postForObject(url + "/films", film, Film.class));
-	}
-
-	@Test
-	void shouldPassFilmValidationWith199DescLength() {
-		Film film = createFilm("name", "d".repeat(199), LocalDate.of(1912, 12, 28),
-				Duration.ofHours(2));
-		Film restTemplateFilm = restTemplate.postForObject(url + "/films", film, Film.class);
-		film.setId(restTemplateFilm.getId());
-		assertEquals(film, restTemplateFilm);
-	}
-
-	@Test
-	void shouldNotPassFilmValidationWithNegativeDuration() {
-		Film film = createFilm("name", "desc", LocalDate.of(1912, 12, 28),
-				Duration.ofHours(-1));
-		assertNull(restTemplate.postForObject(url + "/films", film, Film.class));
-	}
-
-	@Test
-	void shouldPassFilmValidationWithZeroDuration() {
-		Film film = createFilm("name", "desc", LocalDate.of(1912, 12, 28),
-				Duration.ofHours(0));
-		Film restTemplateFilm = restTemplate.postForObject(url + "/films", film, Film.class);
-		film.setId(restTemplateFilm.getId());
-		assertEquals(film, restTemplateFilm);
-	}
-
-	@Test
-	void shouldNotPassFilmValidationWithReleaseDateBefore1895_12_28() {
-		Film film = createFilm("name", "desc", LocalDate.of(1800, 12, 28),
-				Duration.ofHours(0));
-		assertNull(restTemplate.postForObject(url + "/films", film, Film.class));
-	}
-
-	@Test
-	void shouldPassFilmValidationWithReleaseDate1895_12_28() {
-		Film film = createFilm("name", "desc", LocalDate.of(1895, 12, 28),
-				Duration.ofHours(0));
-		Film restTemplateFilm = restTemplate.postForObject(url + "/films", film, Film.class);
-		film.setId(restTemplateFilm.getId());
-		assertEquals(film, restTemplateFilm);
-	}
-
-	private User createUser(String email, String login, String name, LocalDate birthday) {
-		User user = User.builder().email(email).login(login).name(name).birthday(birthday).build();
-		String username = user.getName();
-		if (username == null || username.isEmpty())
-			user.setName(user.getLogin());
-		return user;
-	}
-
-	private Film createFilm(String name, String desc, LocalDate releaseDate, Duration duration) {
-		return Film.builder().name(name).description(desc).releaseDate(releaseDate).duration(duration).build();
+	@Order(12)
+	public void shouldGetValidGenres() {
+		Genre[] genres = Genre.values();
+		for (int i = 0; i < genres.length; i++) {
+			assertEquals(genres[i], dbGenreStorage.getGenreById(i + 1).orElse(null));
+		}
 	}
 }

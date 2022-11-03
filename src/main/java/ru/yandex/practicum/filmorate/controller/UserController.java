@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -18,13 +19,13 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        return service.addUser(user);
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+        return ResponseEntity.ok(service.addUser(user));
     }
 
     @PutMapping
-    public User editUser(@Valid @RequestBody User user) {
-        return service.editUser(user);
+    public ResponseEntity<User> editUser(@Valid @RequestBody User user) {
+        return ResponseEntity.ok(service.editUser(user));
     }
 
     @GetMapping
@@ -48,8 +49,8 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User getById(@PathVariable String userId) {
-        return service.getUserById(Long.parseLong(userId));
+    public ResponseEntity<User> getById(@PathVariable String userId) {
+        return ResponseEntity.ok(service.getUserById(Long.parseLong(userId)));
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")

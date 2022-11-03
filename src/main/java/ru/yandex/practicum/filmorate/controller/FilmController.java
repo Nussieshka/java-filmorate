@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/films")
@@ -17,13 +18,13 @@ public class FilmController {
     private final FilmService service;
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
-        return service.addFilm(film);
+    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
+        return ResponseEntity.ok(service.addFilm(film));
     }
 
     @PutMapping
-    public Film editFilm(@Valid @RequestBody Film film) {
-        return service.editFilm(film);
+    public ResponseEntity<Film> editFilm(@Valid @RequestBody Film film) {
+        return ResponseEntity.ok(service.editFilm(film));
     }
 
     @GetMapping
@@ -42,8 +43,8 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public Film getById(@PathVariable String filmId) {
-        return service.getFilmById(Long.parseLong(filmId));
+    public ResponseEntity<Film> getById(@PathVariable String filmId) {
+        return ResponseEntity.ok(service.getFilmById(Long.parseLong(filmId)));
     }
 
     @GetMapping("/popular")
